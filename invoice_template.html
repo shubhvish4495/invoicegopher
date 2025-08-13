@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Template</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        @media print {
+            body {
+                background-color: #fff;
+            }
+            .no-print {
+                display: none;
+            }
+            .invoice-container {
+                box-shadow: none;
+                border: none;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+            .invoice-table th, .invoice-table td {
+                padding: 8px 12px;
+            }
+            .invoice-table th {
+                background-color: #e2e8f0 !important;
+            }
+            /* Force all table cells to be visible on print */
+            .invoice-table td {
+                display: table-cell !important;
+            }
+            .hidden-on-print {
+                display: none !important;
+            }
+        }
+        /* Custom styles for smaller screens to make table responsive */
+        @media (max-width: 640px) {
+            .invoice-table thead {
+                display: none;
+            }
+            .invoice-table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 0.5rem;
+            }
+            .invoice-table td {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.5rem 1rem;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .invoice-table td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-right: 1rem;
+            }
+            .invoice-table tr:last-child {
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-12 rounded-xl shadow-2xl invoice-container">
+        <!-- Invoice Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-gray-200 pb-6 mb-6">
+            <div class="flex items-center mb-4 sm:mb-0">
+                <!-- Company Logo Placeholder -->
+                <img src="{{ .From.LogoURL }}" alt="Company Logo" class="h-12 w-auto mr-4 rounded-md">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-800">{{ .From.Name }}</h1>
+                    <p class="text-sm text-gray-500">{{ .From.Address }}</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h2 class="text-xl font-bold text-gray-700">INVOICE</h2>
+                <p class="text-gray-500 text-sm">Invoice #<span class="font-semibold text-gray-600">{{ .InvoiceNo }}</span></p>
+                <p class="text-gray-500 text-sm">Date: <span class="font-semibold text-gray-600">{{ .Date }}</span></p>
+            </div>
+        </header>
+
+        <!-- Company and Client Details -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 text-sm">
+            <div>
+                <h3 class="font-bold text-gray-700 uppercase mb-2">Billed To:</h3>
+                <p class="text-gray-600 font-semibold">{{ .BilledTo.Name }}</p>
+                <p class="text-gray-500">{{ .BilledTo.Address }}</p>
+                <p class="text-gray-500">Email: <span class="font-medium text-gray-600">{{ .BilledTo.Email }}</span></p>
+            </div>
+            <div class="sm:text-right">
+                <h3 class="font-bold text-gray-700 uppercase mb-2">From:</h3>
+                <p class="text-gray-600 font-semibold">{{ .From.Name }}</p>
+                <p class="text-gray-500">{{ .From.Address }}</p>
+                <p class="text-gray-500">Email: <span class="font-medium text-gray-600">{{ .From.Email }}</span></p>
+            </div>
+        </section>
+
+        <!-- Invoice Items Table -->
+        <section class="mb-8">
+            <table class="w-full text-left table-auto border-collapse rounded-lg overflow-hidden shadow-sm invoice-table">
+                <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
+                    <tr>
+                        <th class="p-4">Description</th>
+                        <th class="p-4 text-right">Qty</th>
+                        <th class="p-4 text-right">Price</th>
+                        <th class="p-4 text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .Items }}
+                    <tr class="border-t border-gray-200">
+                        <td class="p-4" data-label="Description">{{ .Description }}</td>
+                        <td class="p-4 text-right" data-label="Qty">{{ .Quantity }}</td>
+                        <td class="p-4 text-right" data-label="Price">${{ .Price }}</td>
+                        <td class="p-4 text-right" data-label="Amount">${{ .Amount }}</td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Summary Totals -->
+        <section class="flex justify-end">
+            <div class="w-full sm:w-1/2">
+                <div class="flex justify-between items-center text-sm mb-2">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="font-semibold text-gray-800">${{ .Total }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm mb-2">
+                    <span class="text-gray-600">Tax</span>
+                    <span class="font-semibold text-gray-800">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center text-lg font-bold border-t border-gray-300 pt-4 mt-4">
+                    <span class="text-gray-700">TOTAL DUE</span>
+                    <span class="text-green-600">${{ .Total }}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes and Payment Instructions -->
+        <footer class="mt-12 pt-6 border-t-2 border-gray-200 text-sm text-gray-600">
+            <div class="mb-4">
+                <h3 class="font-bold text-gray-700 uppercase mb-2">Notes:</h3>
+                <p>{{ .Note }}</p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-700 uppercase mb-2">Payment Instructions:</h3>
+                <p>Please make payments via {{ .PaymentMethod }}.</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
