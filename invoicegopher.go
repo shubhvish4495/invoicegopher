@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// generateInvoice creates a sample invoice
+// GenerateDummyInvoice creates a sample invoice
 // should be used only for testing purposes
 func GenerateDummyInvoice() Invoice {
 	invoice := Invoice{
@@ -54,6 +54,9 @@ func GenerateDummyInvoice() Invoice {
 	return invoice
 }
 
+// GenerateInvoice generates an invoice from a template
+// invoice is the invoice to generate
+// returns the invoice as a byte array and an error if any
 func GenerateInvoice(invoice Invoice) ([]byte, error) {
 
 	// Parse the HTML template
