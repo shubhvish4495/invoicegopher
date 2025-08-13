@@ -165,13 +165,13 @@ Example output: `output/invoice.html`
 ```
 .
 ├── go.mod
-├── main.go               # Core invoice generation logic
+├── invoicegopher.go      # Core invoice generation logic
+├── invoicegopher_test.go # Core invoice generation logic tests
 ├── model.go              # Data structures
 ├── invoice_template.html # HTML template
 ├── sample/
 │   └── main.go           # Example usage
-└── output/
-    └── invoice.html      # Generated invoice
+└── output                # folder to store sample output html
 ```
 
 ---
